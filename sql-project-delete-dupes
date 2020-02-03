@@ -1,0 +1,43 @@
+SELECT * FROM projects;
+
+SELECT title,
+  COUNT(title) AS 'Num of Entries'
+FROM projects
+GROUP BY title
+HAVING COUNT(*) > 1;
+
+SELECT 
+    id 
+FROM (
+  SELECT 
+    id, 
+    title, 
+    ROW_NUMBER() OVER ( 
+        PARTITION BY title
+        ORDER BY title
+    ) AS row_num 
+FROM projects)
+t
+WHERE 
+    row_num > 1;
+    
+DELETE FROM projects
+  WHERE 
+    id IN (
+      SELECT 
+        id 
+      FROM (
+        SELECT 
+          id, 
+          title, 
+          ROW_NUMBER() OVER ( 
+            PARTITION BY title
+            ORDER BY title
+          ) AS row_num 
+  FROM projects)
+  t
+  WHERE 
+    row_num > 1
+  );
+  
+SELECT * FROM projects;
